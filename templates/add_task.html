@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить задачу | To-Do{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <h2>Добавить задачу</h2>
+    <p class="page-sub">Заполните форму — название, приоритет и день создания</p>
+</section>
+
+<section class="card card--form">
+    <form method="post" action="{{ url_for('add_task') }}" class="form">
+        <div class="form__field">
+            <label class="form__label" for="title">
+                Название задачи <span class="required">*</span>
+            </label>
+            <div class="field-input">
+                <svg class="field-input__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    placeholder="Например, подготовить отчёт"
+                    value="{{ form_data.get('title', '') }}"
+                    required
+                >
+            </div>
+        </div>
+
+        <div class="form__field">
+            <label class="form__label" for="description">
+                Описание
+            </label>
+            <div class="field-input">
+                <svg class="field-input__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                </svg>
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="4"
+                    placeholder="Краткое описание задачи…">{{ form_data.get('description', '') }}</textarea>
+            </div>
+        </div>
+
+        <div class="form__field">
+            <span class="form__label">Приоритет <span class="required">*</span></span>
+
+            <div class="priority-select">
+                <label class="priority-option priority-option--high">
+                    <input type="radio" name="priority" value="1" {% if form_data.get('priority', '1') == '1' %}checked{% endif %}>
+                    <span class="priority-option__check" aria-hidden="true">✓</span>
+                    <span class="priority-option__icon" aria-hidden="true">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3v2"/><path d="M12 19v2"/><path d="M5.5 5.5l1.4 1.4"/><path d="M17.1 17.1l1.4 1.4"/><path d="M3 12h2"/><path d="M19 12h2"/><path d="m8.5 8.5-1.4-1.4"/><path d="m15.5 15.5 1.4 1.4"/><circle cx="12" cy="12" r="3.2"/>
+                        </svg>
+                    </span>
+                    <span class="priority-option__info">
+                        <span class="priority-option__name">Высокий</span>
+                        <span class="priority-option__hint">1 · важное</span>
+                    </span>
+                </label>
+
+                <label class="priority-option priority-option--medium">
+                    <input type="radio" name="priority" value="2" {% if form_data.get('priority') == '2' %}checked{% endif %}>
+                    <span class="priority-option__check" aria-hidden="true">✓</span>
+                    <span class="priority-option__icon" aria-hidden="true">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 3-2"/><path d="M3 17c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 3-2"/><path d="M3 7c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 3-2"/>
+                        </svg>
+                    </span>
+                    <span class="priority-option__info">
+                        <span class="priority-option__name">Средний</span>
+                        <span class="priority-option__hint">2 · по плану</span>
+                    </span>
+                </label>
+
+                <label class="priority-option priority-option--low">
+                    <input type="radio" name="priority" value="3" {% if form_data.get('priority') == '3' %}checked{% endif %}>
+                    <span class="priority-option__check" aria-hidden="true">✓</span>
+                    <span class="priority-option__icon" aria-hidden="true">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3s5 4.5 5 9a5 5 0 0 1-10 0c0-4.5 5-9 5-9Z"/><path d="M12 8v6"/>
+                        </svg>
+                    </span>
+                    <span class="priority-option__info">
+                        <span class="priority-option__name">Низкий</span>
+                        <span class="priority-option__hint">3 · когда будет время</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form__field">
+            <label class="form__label" for="created_at">
+                День создания задачи
+            </label>
+            <div class="field-input">
+                <svg class="field-input__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>
+                </svg>
+                <input
+                    type="date"
+                    id="created_at"
+                    name="created_at"
+                    value="{{ form_data.get('created_at', today) }}"
+                >
+            </div>
+        </div>
+
+        <div class="form__field">
+            <label class="form__label" for="deadline">
+                Дедлайн (срок сдачи)
+            </label>
+            <div class="field-input">
+                <svg class="field-input__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="13" r="9"/><path d="M12 8.5V13l3 2"/><path d="m9 2 6 3"/><path d="m15 2-6 3"/>
+                </svg>
+                <input
+                    type="date"
+                    id="deadline"
+                    name="deadline"
+                    value="{{ form_data.get('deadline', '') }}"
+                >
+            </div>
+        </div>
+
+        <div class="form__actions">
+            <button type="submit" class="btn btn--primary">Сохранить задачу</button>
+            <a class="btn" href="{{ url_for('index') }}">Отмена</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

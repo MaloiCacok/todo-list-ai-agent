@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block title %}Дашборд | To-Do{% endblock %}
+
+{% block container_class %}container--dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="kpi-grid">
+        <div class="kpi kpi--teal">
+            <span class="kpi__bar"></span>
+            <span class="kpi__icon" aria-hidden="true">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 6h14v4H9z"/><path d="M9 13h14v4H9z"/><path d="M9 20h8v4H9z"/>
+                </svg>
+            </span>
+            <div class="kpi__value kpi-value--teal">{{ stats.total }}</div>
+            <div class="kpi__label">Всего задач</div>
+        </div>
+
+        <div class="kpi kpi--green">
+            <span class="kpi__bar"></span>
+            <span class="kpi__icon" aria-hidden="true">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 18l3 3 6-7"/><circle cx="16" cy="16" r="11"/>
+                </svg>
+            </span>
+            <div class="kpi__value kpi-value--green">{{ stats.done }}</div>
+            <div class="kpi__label">Выполнено</div>
+        </div>
+
+        <div class="kpi kpi--coral">
+            <span class="kpi__bar"></span>
+            <span class="kpi__icon" aria-hidden="true">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="16" cy="16" r="11"/><path d="M16 10v6l4 3"/>
+                </svg>
+            </span>
+            <div class="kpi__value kpi-value--coral">{{ stats.remaining }}</div>
+            <div class="kpi__label">Осталось</div>
+        </div>
+
+        <div class="kpi kpi--sand">
+            <span class="kpi__bar"></span>
+            <span class="kpi__icon" aria-hidden="true">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 9a9 9 0 1 0 0 14"/>
+                </svg>
+            </span>
+            <div class="kpi__value kpi-value--sand">{{ (100 * stats.done / stats.total) | round | int if stats.total else 0 }}%</div>
+            <div class="kpi__label">Прогресс</div>
+        </div>
+    </div>
+
+    {% if stats.total > 0 %}
+    <div class="charts-grid">
+        <section class="chart-card">
+            <span class="chart-card__corner" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <circle cx="10" cy="10" r="7"/>
+                </svg>
+            </span>
+            <h2>Выполнение задач</h2>
+            <div class="chart-canvas chart-canvas--doughnut">
+                <canvas id="statusChart"></canvas>
+            </div>
+            <div class="chart-underline"></div>
+        </section>
+
+        <section class="chart-card">
+            <span class="chart-card__corner" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <path d="M3 15h4M3 10h8M3 5h6"/>
+                </svg>
+            </span>
+            <h2>Приоритеты</h2>
+            <div class="chart-canvas chart-canvas--bar">
+                <canvas id="priorityChart"></canvas>
+            </div>
+            <div class="chart-underline"></div>
+        </section>
+    </div>
+
+    <section class="chart-card chart-card--full">
+        <span class="chart-card__corner" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M2 15l5-5 4 3 7-8"/>
+            </svg>
+        </span>
+        <h2>Накопительный прогресс</h2>
+        <div class="chart-canvas chart-canvas--line">
+            <canvas id="progressChart"></canvas>
+        </div>
+        <div class="chart-underline"></div>
+    </section>
+    {% else %}
+    <section class="card empty-card">
+        <div class="empty-card__shell" aria-hidden="true">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#A8E6E0" stroke-width="2" stroke-linecap="round">
+                <path d="M11.5 22.5 Q14 19 17.2 17.5 Q20.2 15.5 24 15.3 Q27.8 15.5 30.8 17.5 Q34 19 36.5 22.5"/>
+                <path d="M24 35 L11.5 22.5"/><path d="M24 35 L17.2 17.5"/><path d="M24 35 L24 15.3"/><path d="M24 35 L30.8 17.5"/><path d="M24 35 L36.5 22.5"/><path d="M21 37 Q24 39.5 27 37"/>
+            </svg>
+        </div>
+        <h2>Нет данных для графиков</h2>
+        <p>Добавьте задачи, чтобы увидеть статистику на дашборде.</p>
+        <a class="btn btn--primary" href="{{ url_for('add_task') }}">Добавить задачу</a>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof Chart === 'undefined') return;
+
+    const total = {{ stats.total }};
+    const priorityData = {{ stats.by_priority | tojson }};
+    const progressData = {{ progress_data | tojson }};
+
+    // ---------- Общие настройки ----------
+    Chart.defaults.font.family = 'Inter, sans-serif';
+    Chart.defaults.font.size = 13;
+    Chart.defaults.color = '#5C8A87';
+    Chart.defaults.animation.duration = 1200;
+    Chart.defaults.animation.easing = 'easeOutQuart';
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.padding = 20;
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(26,58,56,0.95)';
+    Chart.defaults.plugins.tooltip.titleColor = '#40E0D0';
+    Chart.defaults.plugins.tooltip.bodyColor = '#ffffff';
+    Chart.defaults.plugins.tooltip.cornerRadius = 10;
+    Chart.defaults.plugins.tooltip.padding = 12;
+    Chart.defaults.plugins.tooltip.titleFont = { size: 14, weight: '600' };
+    Chart.defaults.plugins.tooltip.bodyFont = { size: 13 };
+    Chart.defaults.plugins.tooltip.displayColors = true;
+    Chart.defaults.plugins.tooltip.boxPadding = 6;
+
+    // ---------- Кастомный плагин: цифра в центре doughnut ----------
+    const centerText = {
+        id: 'centerText',
+        afterDraw(chart) {
+            const { ctx, chartArea } = chart;
+            if (!chartArea) return;
+            const cx = chartArea.left + chartArea.width / 2;
+            const cy = chartArea.top + chartArea.height / 2;
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const grad = ctx.createLinearGradient(0, chartArea.top, chartArea.right, chartArea.bottom);
+            grad.addColorStop(0, '#40E0D0');
+            grad.addColorStop(1, '#2EC4B6');
+            ctx.font = '700 44px Inter, sans-serif';
+            ctx.fillStyle = grad;
+            ctx.fillText(String(total), cx, cy - 12);
+            ctx.font = '13px Inter, sans-serif';
+            ctx.fillStyle = '#5C8A87';
+            ctx.fillText('всего задач', cx, cy + 22);
+            ctx.restore();
+        }
+    };
+
+    const greenGradient = (ctx, area) => {
+        const g = ctx.createLinearGradient(area.left, area.top, area.right, area.bottom);
+        g.addColorStop(0, '#4CAF50');
+        g.addColorStop(1, '#2E8B57');
+        return g;
+    };
+    const redGradient = (ctx, area) => {
+        const g = ctx.createLinearGradient(area.left, area.top, area.right, area.bottom);
+        g.addColorStop(0, '#FF6B6B');
+        g.addColorStop(1, '#F43F5E');
+        return g;
+    };
+
+    // ---------- 1. Doughnut: выполнено / не выполнено ----------
+    // Данные приходят из БД (status_data) — блок строится по ним,
+    // цвета назначаются по индексу сегмента: 0 — зелёный, 1 — красный.
+    const statusData = {{ status_data | tojson }};
+    const statusValues = statusData.map((d) => d.value);
+    const totalFromData = statusValues.reduce((a, b) => a + b, 0);
+
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: statusData.map((d) => d.label),
+            datasets: [{
+                data: statusValues,
+                backgroundColor(context) {
+                    const { ctx, chartArea } = context.chart;
+                    if (!chartArea) return '#4CAF50';
+                    return context.dataIndex === 0
+                        ? greenGradient(ctx, chartArea)
+                        : redGradient(ctx, chartArea);
+                },
+                borderWidth: 2,
+                borderColor: 'rgba(255, 255, 255, 0.95)',
+                borderRadius: 10,
+                spacing: 4,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        generateLabels() {
+                            return statusData.map((d, i) => ({
+                                text: `${d.label} — ${d.value}`,
+                                fillStyle: i === 0 ? '#4CAF50' : '#FF6B6B',
+                                strokeStyle: 'rgba(255,255,255,0.9)',
+                                lineWidth: 2,
+                                hidden: false,
+                                index: i,
+                                pointStyle: 'circle'
+                            }));
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label(context) {
+                            const value = statusValues[context.dataIndex];
+                            const percent = totalFromData
+                                ? Math.round((value / totalFromData) * 100)
+                                : 0;
+                            return ` ${value} задач · ${percent}%`;
+                        }
+                    }
+                }
+            }
+        },
+        plugins: [centerText]
+    });
+
+    // ---------- 2. Горизонтальный bar: приоритеты ----------
+    const priorityStops = {
+        0: ['#FF6B6B', '#FFB74D'],
+        1: ['#FFD166', '#40E0D0'],
+        2: ['#40E0D0', '#2EC4B6']
+    };
+    new Chart(document.getElementById('priorityChart'), {
+        type: 'bar',
+        data: {
+            labels: ['1 — Высокий', '2 — Средний', '3 — Низкий'],
+            datasets: [{
+                label: 'Количество задач',
+                data: [priorityData['1'], priorityData['2'], priorityData['3']],
+                backgroundColor(context) {
+                    const { ctx, chartArea } = context.chart;
+                    if (!chartArea) return '#40E0D0';
+                    const stops = priorityStops[context.dataIndex] || priorityStops[0];
+                    const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    g.addColorStop(0, stops[0]);
+                    g.addColorStop(1, stops[1]);
+                    return g;
+                },
+                borderRadius: 12,
+                barThickness: 36
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            animation: {
+                duration: 1200,
+                easing: 'easeOutQuart',
+                delay: (context) => context.dataIndex * 150
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(46,196,182,0.06)' },
+                    ticks: { precision: 0 }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { font: { size: 14 }, color: '#1A3A38' }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // ---------- 3. Линейный: накопительный прогресс ----------
+    const lineFill = (ctx, area) => {
+        const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+        g.addColorStop(0, 'rgba(64,224,208,0.35)');
+        g.addColorStop(1, 'rgba(64,224,208,0)');
+        return g;
+    };
+
+    // Точки накопительного прогресса (в % от общего числа задач)
+    const progressPoints = progressData.map((p) => ({
+        x: p.step,
+        y: total > 0 ? Math.round((p.done / total) * 100) : 0,
+        done: p.done,
+        title: p.title
+    }));
+    if (progressPoints.length) {
+        progressPoints.unshift({ x: 0, y: 0, done: 0, title: 'Старт' });
+    }
+
+    new Chart(document.getElementById('progressChart'), {
+        type: 'line',
+        data: {
+            labels: progressPoints.map((p) => (p.x === 0 ? 'Старт' : '#' + p.x)),
+            datasets: [
+                {
+                    label: 'Накопленный прогресс',
+                    data: progressPoints.map((p) => p.y),
+                    borderColor: '#2EC4B6',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: (c) => lineFill(c.chart.ctx, c.chart.chartArea),
+                    pointRadius: (c) => (progressPoints[c.dataIndex].done ? 5 : 0),
+                    pointBackgroundColor: '#2EC4B6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: '#2EC4B6',
+                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBorderWidth: 3
+                },
+                {
+                    label: 'Цель — 100%',
+                    data: progressPoints.map(() => 100),
+                    borderColor: 'rgba(168, 230, 224, 0.9)',
+                    borderWidth: 2,
+                    borderDash: [8, 8],
+                    fill: false,
+                    tension: 0,
+                    pointRadius: 0,
+                    pointHoverRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 1500, easing: 'easeOutQuart' },
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { grid: { color: 'rgba(46,196,182,0.06)' } },
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: { color: 'rgba(46,196,182,0.06)' },
+                    ticks: { callback: (value) => value + '%', precision: 0 }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { usePointStyle: true, pointStyle: 'line' }
+                },
+                tooltip: {
+                    callbacks: {
+                        title(items) {
+                            const i = items[0].dataIndex;
+                            return progressPoints[i].x === 0
+                                ? 'Старт'
+                                : `Задача #${progressPoints[i].x}`;
+                        },
+                        label(context) {
+                            const p = progressPoints[context.dataIndex];
+                            if (context.datasetIndex === 0) {
+                                return ` Выполнено ${p.done} из ${total} · ${p.y}%`;
+                            }
+                            return ' Цель: 100%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

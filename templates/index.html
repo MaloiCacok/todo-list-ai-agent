@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Главная | To-Do{% endblock %}
+
+{% block content %}
+<section class="card hero">
+    <figure class="hero__figure">
+        <img src="{{ url_for('static', filename='images/seascape.svg') }}"
+             alt="Морское побережье в лучах заката — атмосфера Морского бриза"
+             class="hero__img">
+    </figure>
+    <div class="hero__body">
+        <div class="hero__shell" aria-hidden="true">
+            <svg width="64" height="64" viewBox="0 0 48 48" fill="none" stroke="url(#heroGrad)" stroke-width="2" stroke-linecap="round">
+                <defs>
+                    <linearGradient id="heroGrad" x1="0" y1="1" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#40E0D0"/>
+                        <stop offset="100%" stop-color="#20B2AA"/>
+                    </linearGradient>
+                </defs>
+                <path d="M11.5 22.5 Q14 19 17.2 17.5 Q20.2 15.5 24 15.3 Q27.8 15.5 30.8 17.5 Q34 19 36.5 22.5"/>
+                <path d="M24 35 L11.5 22.5"/><path d="M24 35 L17.2 17.5"/><path d="M24 35 L24 15.3"/><path d="M24 35 L30.8 17.5"/><path d="M24 35 L36.5 22.5"/><path d="M21 37 Q24 39.5 27 37"/>
+            </svg>
+        </div>
+        <h1 class="hero__title">Морской бриз в<p class="hero__title-accent">ваших задачах</p></h1>
+        <p class="hero__text">
+            Лёгкое веб-приложение для планирования дел: ведите список задач,
+            расставляйте приоритеты и дедлайны, а прогресс покажет наглядный дашборд.
+        </p>
+        <div class="hero__actions">
+            <a class="btn btn--primary" href="{{ url_for('add_task') }}">Добавить задачу</a>
+            <a class="btn" href="{{ url_for('task_list') }}">Список задач</a>
+            <a class="btn" href="{{ url_for('dashboard') }}">Дашборд</a>
+        </div>
+    </div>
+</section>
+
+<section class="about-card">
+    <figure class="about-card__figure">
+        <img src="{{ url_for('static', filename='images/task-at-sea.svg') }}"
+             alt="Блокнот со списком задач на берегу моря"
+             class="about-card__img">
+    </figure>
+    <h2 class="section-title">О приложении</h2>
+    <p class="about-card__text">
+        <strong>To-Do</strong> — это удобный органайзер из одного веб-приложения,
+        выполненный в стиле «Морской бриз». Он закрывает весь цикл управления задачами:
+        от создания до отслеживания выполнения. Каждая задача хранит название,
+        описание, приоритет, день создания и необязательный дедлайн, по которому
+        автоматически определяется срочность — чем ближе дата, тем «горячее» цвет
+        карточки.
+    </p>
+    <p class="about-card__text">
+        Всё, что вы добавляете, мгновенно сохраняется в локальную базу данных
+        <strong>SQLite</strong>, поэтому задачи никуда не исчезают после закрытия
+        приложения. Страница «Список задач» группирует дела по дням недели,
+        а заголовок «Дашборд» открывает живые графики: процент выполнения задач
+        и накопительный прогресс по дням.
+    </p>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-card__icon">＋</div>
+            <h3>Добавление задач</h3>
+            <p>Название, описание, приоритет, день создания и дедлайн — всё в одной форме.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-card__icon">✎</div>
+            <h3>Редактирование</h3>
+            <p>Любую задачу можно открыть по клику и изменить поля или отметить выполненной.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-card__icon">⏳</div>
+            <h3>Дедлайны</h3>
+            <p>Автоматическая подсветка срочности: от спокойного бирюзового до ярко-красного.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-card__icon">◔</div>
+            <h3>Дашборд</h3>
+            <p>Диаграмма выполнения и накопительный график прогресса на Chart.js.</p>
+        </div>
+    </div>
+
+    <div class="tech-pills">
+        <span class="tech-pill">Flask</span>
+        <span class="tech-pill">SQLite</span>
+        <span class="tech-pill">Jinja2</span>
+        <span class="tech-pill">Chart.js</span>
+        <span class="tech-pill">HTML / CSS</span>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Список задач | To-Do{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <h2>Список задач</h2>
+    <p class="page-sub">Нажмите на задачу, чтобы отредактировать · цвет дедлайна показывает срочность</p>
+</section>
+
+{% if groups %}
+    {% for group in groups %}
+    <section class="day-group">
+        <header class="day-group__head">
+            <span class="day-group__label">{{ group.label }}</span>
+            <span class="day-group__count">{{ group.tasks | length }}</span>
+        </header>
+
+        <div class="task-list">
+            {% for task in group.tasks %}
+            <article class="task-card {{ 'task-card--done' if task.status == 'Выполнено' else '' }} {{ 'task-card--deadline-' ~ task.deadline_class if task.deadline_class }}">
+                <span class="task-card__band task-card__band--{{ task.priority }}"></span>
+                <div class="task-card__num">#{{ task.id }}</div>
+                <div class="task-card__body">
+                    <h3 class="task-card__title">
+                        <a href="{{ url_for('task_detail', task_id=task.id) }}" title="Редактировать задачу">
+                            {{ task.title }}
+                        </a>
+                    </h3>
+                    {% if task.description %}
+                        <p class="task-card__desc">{{ task.description }}</p>
+                    {% endif %}
+                    <div class="task-card__meta">
+                        <span class="pill pill--date" title="День создания">
+                            <span class="pill__icon" aria-hidden="true">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>
+                                </svg>
+                            </span>
+                            {{ task.created_at | format_date }}
+                        </span>
+                        {% if task.deadline %}
+                            <span class="pill pill--deadline pill--deadline--{{ task.deadline_class or 'ok' }}" title="{{ task.deadline_label }}">
+                                <span class="pill__icon" aria-hidden="true">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="13" r="9"/><path d="M12 8.5V13l3 2"/><path d="m9 2 6 3"/><path d="m15 2-6 3"/>
+                                    </svg>
+                                </span>
+                                {{ task.deadline | format_date }}
+                            </span>
+                        {% endif %}
+                        <span class="pill pill--priority-{{ task.priority }}">
+                            Приоритет {{ task.priority }} · {{ priorities[task.priority] }}
+                        </span>
+                        {% if task.status == 'Выполнено' %}
+                            <span class="pill pill--done"><span class="pill__icon">✓</span> Выполнено</span>
+                        {% else %}
+                            <span class="pill pill--todo"><span class="pill__icon">○</span> Не выполнено</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="task-card__action">
+                    {% if task.status == 'Выполнено' %}
+                        <form method="post" action="{{ url_for('reopen_task', task_id=task.id) }}">
+                            <button type="submit" class="btn btn--warning btn--small">Вернуть</button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{{ url_for('complete_task', task_id=task.id) }}">
+                            <button type="submit" class="btn btn--primary btn--small">Отметить выполненной</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+{% else %}
+<section class="card empty-card">
+    <div class="empty-card__shell" aria-hidden="true">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#A8E6E0" stroke-width="2" stroke-linecap="round">
+            <path d="M11.5 22.5 Q14 19 17.2 17.5 Q20.2 15.5 24 15.3 Q27.8 15.5 30.8 17.5 Q34 19 36.5 22.5"/>
+            <path d="M24 35 L11.5 22.5"/><path d="M24 35 L17.2 17.5"/><path d="M24 35 L24 15.3"/><path d="M24 35 L30.8 17.5"/><path d="M24 35 L36.5 22.5"/><path d="M21 37 Q24 39.5 27 37"/>
+        </svg>
+    </div>
+    <h2>Задач пока нет</h2>
+    <p>Добавьте первую задачу, и она появится здесь.</p>
+    <a class="btn btn--primary" href="{{ url_for('add_task') }}">Добавить задачу</a>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 560" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Морское побережье в лучах заката">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7FDBD8"/>
+      <stop offset="45%" stop-color="#F5D6A8"/>
+      <stop offset="75%" stop-color="#F9A878"/>
+      <stop offset="100%" stop-color="#2EC4B6"/>
+    </linearGradient>
+    <linearGradient id="sunGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF6E0"/>
+      <stop offset="100%" stop-color="#FFD76E"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3FD0C0"/>
+      <stop offset="50%" stop-color="#2BAE9F"/>
+      <stop offset="100%" stop-color="#1E8A80"/>
+    </linearGradient>
+    <linearGradient id="seaDeep" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2BAE9F"/>
+      <stop offset="100%" stop-color="#177A72"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="boatSail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#FFF3D6"/>
+    </linearGradient>
+    <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F6E3C2"/>
+      <stop offset="100%" stop-color="#EBD1A4"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1440" height="560" fill="url(#sky)"/>
+
+  <circle cx="1040" cy="240" r="120" fill="url(#glow)"/>
+  <circle cx="1040" cy="240" r="72" fill="url(#sunGrad)"/>
+
+  <g fill="none" stroke="#7F7F7F" stroke-opacity="0.18" stroke-width="2">
+    <path d="M120 120 q40 -14 80 0 t80 0"/>
+    <path d="M1150 90 q40 -14 80 0 t80 0"/>
+    <path d="M1180 130 q40 -14 80 0 t80 0"/>
+  </g>
+
+  <g fill="#FFFFFF" opacity="0.85">
+    <path d="M560 96 q6 -16 12 0 q-6 3 -12 0Z"/>
+    <path d="M586 110 q5 -13 10 0 q-5 2 -10 0Z"/>
+    <path d="M540 118 q5 -13 10 0 q-5 2 -10 0Z"/>
+    <path d="M880 84 q7 -18 14 0 q-7 3 -14 0Z"/>
+    <path d="M906 100 q6 -15 12 0 q-6 3 -12 0Z"/>
+  </g>
+
+  <path d="M0 300 Q120 270 240 296 T480 292 T720 302 T960 290 T1200 298 T1440 290 L1440 560 L0 560 Z" fill="url(#sea)"/>
+  <path d="M0 360 Q160 330 320 356 T640 352 T960 360 T1280 348 L1440 356 L1440 560 L0 560 Z" fill="url(#seaDeep)"/>
+
+  <g fill="#FFFFFF" opacity="0.5">
+    <rect x="220" y="258" width="140" height="14" rx="7" transform="rotate(-4 290 265)"/>
+    <rect x="520" y="272" width="120" height="12" rx="6" transform="rotate(3 580 278)"/>
+    <rect x="840" y="252" width="170" height="14" rx="7" transform="rotate(-2 925 259)"/>
+    <rect x="1150" y="268" width="130" height="12" rx="6" transform="rotate(5 1215 274)"/>
+  </g>
+
+  <g transform="translate(560 300) rotate(-4)">
+    <path d="M-42 30 L42 30 L34 44 L-34 44 Z" fill="#8B5E3C"/>
+    <path d="M0 26 L0 -2 L-40 22 Z" fill="url(#boatSail)"/>
+    <path d="M0 26 L0 -34 L42 12 Z" fill="#FFFDF6"/>
+    <path d="M0 -2 L0 -34" stroke="#D9C07A" stroke-width="1.5" fill="none"/>
+    <path d="M-46 30 L46 34" stroke="#74502F" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <path d="M0 470 Q240 440 480 466 T960 462 T1440 470 L1440 560 L0 560 Z" fill="url(#sand)"/>
+  <path d="M0 470 Q240 440 480 466" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="3" fill="none"/>
+</svg>
